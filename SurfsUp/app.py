@@ -83,19 +83,15 @@ def stations():
 def tobs():
     """Return a JSON list of temperature observations for the previous year."""
     # Find the most active station
-    most_active_station = (
-        session.query(Measurement.station, func.count(Measurement.station))
-        .group_by(Measurement.station)
-        .order_by(func.count(Measurement.station).desc())
-        .first())[0]
+    most_active_station_id ='USC00519281'
 
     # Calculate the date 1 year ago from the last data point for the most active station
-    last_date = session.query(func.max(Measurement.date)).filter(Measurement.station == most_active_station).scalar()
+    last_date = session.query(func.max(Measurement.date)).filter(Measurement.station == most_active_station_id).scalar()
     one_year_ago = dt.datetime.strptime(last_date, "%Y-%m-%d") - dt.timedelta(days=365)
 
     # Query for the temperature observations for the last 12 months for the most active station
     results = session.query(Measurement.date, Measurement.tobs).filter(
-        Measurement.station == most_active_station,
+        Measurement.station == most_active_station_id,
         Measurement.date >= one_year_ago).all()
 
     # Convert the query results to a list of dictionaries
